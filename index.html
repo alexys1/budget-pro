@@ -265,7 +265,16 @@ a{color:inherit;}
 .goal-target{color:var(--text-dim);}
 .goal-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:9px; margin-bottom:12px; font-size:12px; color:var(--text-dim); gap:8px;}
 .goal-pct{font-weight:700; color:var(--text);}
-.goal-eta{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right;}
+.goal-projection{font-size:12.5px; color:var(--text-dim); margin-bottom:12px; line-height:1.4;}
+
+/* ---------- Savings Overview ---------- */
+.savings-overview-card{padding:18px 16px;}
+.total-saved-block{text-align:center; margin-bottom:16px;}
+.total-saved-label{display:block; font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:6px;}
+.total-saved-value{display:block; font-size:clamp(1.4rem,7vw,2rem); font-weight:800; color:var(--green); overflow-wrap:break-word;}
+.savings-streak{margin-top:14px; text-align:center; font-size:13.5px; font-weight:700; color:var(--text-dim);}
+.savings-streak.active{color:var(--green);}
+.savings-streak.neutral{color:var(--text-dim);}
 
 /* ---------- History ---------- */
 .table-card{overflow-x:auto; padding:14px;}
@@ -507,10 +516,17 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
 
     <section id="screen-history" class="screen" data-screen="history">
       <div class="section-header"><h2>History</h2></div>
-      <div class="card">
-        <div class="card-header"><h3>Savings Trend — Last 6 Months</h3></div>
+
+      <div class="card savings-overview-card">
+        <div class="card-header"><h3>Savings Overview</h3></div>
+        <div class="total-saved-block">
+          <span class="total-saved-label">Total saved all time</span>
+          <span class="total-saved-value" id="totalSavedAllTime">$0.00</span>
+        </div>
         <div class="chart-wrap" style="height:200px;"><canvas id="trendChart"></canvas></div>
+        <div id="savingsStreakText" class="savings-streak">Start your streak this month!</div>
       </div>
+
       <div class="card table-card">
         <table class="history-table">
           <thead><tr><th>Month</th><th>Income</th><th>Spent</th><th>Saved</th><th>Net</th></tr></thead>
@@ -896,7 +912,7 @@ function computeStats(monthKey){
       if (c.date.slice(0,7) === monthKey) saved += c.amount;
     });
   });
-  return {income: round2(income), spent: round2(spent), remaining: round2(income - spent), saved: round2(saved)};
+  return {income: round2(income), spent: round2(spent), remaining: round2(income - spent - saved), saved: round2(saved)};
 }
 function categorySpend(monthKey){
   var map = {};
@@ -918,11 +934,11 @@ function last6MonthKeys(){
   }
   return arr;
 }
-function estimateGoalDate(goal){
+function estimateGoalPace(goal){
   var remaining = round2(goal.target - goal.current);
-  if (remaining <= 0) return 'Goal reached! 🎉';
+  if (remaining <= 0) return '🎉 Goal reached!';
   var contributions = goal.contributions || [];
-  if (contributions.length === 0) return 'Add funds to estimate';
+  if (contributions.length === 0) return 'Add funds to see your projection';
   var byMonth = {};
   contributions.forEach(function(c){
     var mk = c.date.slice(0,7);
@@ -931,11 +947,26 @@ function estimateGoalDate(goal){
   var months = Object.keys(byMonth);
   var total = months.reduce(function(s,m){ return s + byMonth[m]; }, 0);
   var avg = total / months.length;
-  if (avg <= 0) return 'Add funds to estimate';
-  var monthsNeeded = Math.ceil(remaining / avg);
-  var d = new Date();
-  d.setMonth(d.getMonth() + monthsNeeded);
-  return 'Est. ' + d.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+  if (avg <= 0) return 'Add funds to see your projection';
+  var monthsNeeded = Math.max(1, Math.ceil(remaining / avg));
+  return 'At your current pace: ' + monthsNeeded + ' month' + (monthsNeeded === 1 ? '' : 's') + ' to go';
+}
+function totalSavedAllTime(){
+  var total = 0;
+  state.goals.forEach(function(g){
+    (g.contributions || []).forEach(function(c){ total += c.amount; });
+  });
+  return round2(total);
+}
+function computeSavingsStreak(){
+  var streak = 0;
+  var now = new Date();
+  for (var i=0; i<60; i++){
+    var mk = monthKeyOf(new Date(now.getFullYear(), now.getMonth()-i, 1));
+    if (computeStats(mk).saved >= 1) streak++;
+    else break;
+  }
+  return streak;
 }
 
 /* ---------------- Rendering ---------------- */
@@ -1183,8 +1214,8 @@ function renderGoals(){
       '<div class="progress-track"><div class="progress-fill goal-fill" data-target="' + pct + '" style="width:0%"></div></div>' +
       '<div class="goal-bottom">' +
         '<span class="goal-pct">' + pct.toFixed(0) + '% complete</span>' +
-        '<span class="goal-eta">' + escapeHtml(estimateGoalDate(g)) + '</span>' +
       '</div>' +
+      '<div class="goal-projection">' + escapeHtml(estimateGoalPace(g)) + '</div>' +
       '<button class="btn-small add-funds-btn" data-id="' + g.id + '">+ Add Funds</button>' +
     '</div>';
   }).join('');
@@ -1212,7 +1243,21 @@ function renderHistory(){
         '</td><td class="pos">' + fmtMoney(s.saved) + '</td><td class="' + (net >= 0 ? 'pos' : 'neg') + '">' + fmtMoney(net) + '</td></tr>';
     }).join('');
   }
+  renderSavingsOverview();
   renderTrendChart();
+}
+
+function renderSavingsOverview(){
+  document.getElementById('totalSavedAllTime').textContent = fmtMoney(totalSavedAllTime());
+  var streak = computeSavingsStreak();
+  var el = document.getElementById('savingsStreakText');
+  if (streak === 0){
+    el.textContent = 'Start your streak this month!';
+    el.className = 'savings-streak neutral';
+  } else {
+    el.textContent = '🔥 ' + streak + ' month' + (streak === 1 ? '' : 's') + ' saving streak';
+    el.className = 'savings-streak' + (streak >= 2 ? ' active' : ' neutral');
+  }
 }
 
 function renderTrendChart(){
@@ -1223,12 +1268,12 @@ function renderTrendChart(){
   if (trendChart) trendChart.destroy();
   if (typeof Chart === 'undefined') return;
   trendChart = new Chart(canvas.getContext('2d'), {
-    type: 'line',
-    data: { labels: labels, datasets: [{ label: 'Saved', data: data, borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,.15)', fill: true, tension: 0.35, pointBackgroundColor: '#3fb950', pointRadius: 4 }] },
+    type: 'bar',
+    data: { labels: labels, datasets: [{ label: 'Saved', data: data, backgroundColor: '#3fb950', borderRadius: 6, maxBarThickness: 34 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        x: { ticks: { color: '#8b949e', font: { family: 'Inter', size: 11 } }, grid: { color: 'rgba(48,54,61,.4)' } },
+        x: { ticks: { color: '#8b949e', font: { family: 'Inter', size: 11 } }, grid: { display: false } },
         y: { ticks: { color: '#8b949e', font: { family: 'Inter', size: 11 }, callback: function(v){ return '$' + v; } }, grid: { color: 'rgba(48,54,61,.4)' } }
       },
       plugins: {
