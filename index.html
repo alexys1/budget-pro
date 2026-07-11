@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Budget Pro — Smart Monthly Planner</title>
 <meta name="description" content="Smart monthly budget planner with transactions, savings goals and PDF reports.">
 <meta name="theme-color" content="#0d1117">
@@ -55,7 +55,7 @@ a{color:inherit;}
 .lock-form{width:100%; max-width:320px; display:flex; flex-direction:column; gap:12px;}
 .lock-input{
   background:var(--surface); border:1px solid var(--border); color:var(--text);
-  padding:15px 16px; border-radius:12px; font-size:15px; text-align:center; letter-spacing:.5px;
+  padding:15px 16px; border-radius:12px; font-size:16px; text-align:center; letter-spacing:.5px;
 }
 .lock-input:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(88,166,255,.15);}
 .lock-error{color:var(--red); font-size:13px; margin-top:2px; font-weight:500;}
@@ -82,12 +82,18 @@ a{color:inherit;}
 .onboarding-budget-list{text-align:left;}
 .onboarding-budget-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
 .onboarding-budget-row span{flex:1; font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
-.onboarding-budget-row input{width:110px; flex-shrink:0; text-align:right; padding:9px 10px; font-size:13px;}
+.onboarding-budget-row input{width:110px; flex-shrink:0; text-align:right; padding:9px 10px; font-size:16px;}
 .onboarding-summary{text-align:left; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:6px 16px; margin-bottom:6px;}
 .onboarding-summary-row{display:flex; justify-content:space-between; gap:10px; padding:9px 0; font-size:13.5px; border-bottom:1px solid var(--border);}
 .onboarding-summary-row:last-child{border-bottom:none;}
 .onboarding-summary-row span:first-child{color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
 .onboarding-summary-row span:last-child{font-weight:700; flex-shrink:0;}
+.onb-income-summary{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:16px; text-align:left;}
+.onb-income-row{display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:4px 0;}
+.onb-income-row span:first-child{color:var(--text-dim);}
+.onb-income-row span:last-child{font-weight:700;}
+.onb-income-row span:last-child.neg{color:var(--red);}
+.onb-budget-warning{color:var(--red); font-size:12.5px; font-weight:700; margin-top:10px; text-align:center;}
 
 /* ---------- Buttons ---------- */
 .btn-primary{
@@ -253,7 +259,7 @@ a{color:inherit;}
 .budget-row-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; font-weight:700; font-size:14px; gap:8px;}
 .budget-cat{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
 .budget-row-mid{display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; color:var(--text-dim); flex-wrap:wrap;}
-.budget-limit-input{width:92px; text-align:right; padding:7px 10px; font-size:13px;}
+.budget-limit-input{width:92px; text-align:right; padding:7px 10px; font-size:16px;}
 
 /* ---------- Goals ---------- */
 .goal-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px;}
@@ -301,7 +307,7 @@ a{color:inherit;}
 .modal-sheet h3{font-size:18px; font-weight:800; margin-bottom:18px;}
 
 label{display:flex; flex-direction:column; gap:6px; font-size:12.5px; color:var(--text-dim); font-weight:700; margin-bottom:14px;}
-input, select{background:var(--card); border:1px solid var(--border); color:var(--text); padding:12px 14px; border-radius:10px; font-size:15px; width:100%;}
+input, select{background:var(--card); border:1px solid var(--border); color:var(--text); padding:12px 14px; border-radius:10px; font-size:16px; width:100%;}
 input:focus, select:focus{outline:none; border-color:var(--blue);}
 
 .toggle-group{display:flex; gap:8px;}
@@ -334,6 +340,51 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
 
 @media (min-width:640px){ .toast{position:absolute;} }
+
+/* ---------- Desktop Layout (>768px) ---------- */
+@media (min-width:769px){
+  body{align-items:stretch; justify-content:stretch;}
+  .app-shell{
+    max-width:none; width:100%; margin:0; border-radius:0; border:none; box-shadow:none;
+    height:100vh; height:100dvh;
+    display:grid; grid-template-columns:260px 1fr; grid-template-rows:auto 1fr;
+    grid-template-areas:"topbar topbar" "nav screens";
+  }
+
+  .topbar{grid-area:topbar; padding:18px 32px;}
+  .topbar-logo{width:32px; height:32px;}
+  .topbar-title{font-size:18px;}
+
+  .bottom-nav{
+    grid-area:nav; flex-direction:column; align-items:stretch; justify-content:flex-start;
+    border-top:none; border-right:1px solid var(--border); gap:4px; overflow-y:auto;
+    padding:20px 14px;
+  }
+  .nav-btn{
+    flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 14px;
+    font-size:14px; border-radius:10px;
+  }
+  .nav-btn.active{background:rgba(88,166,255,.12);}
+  .nav-btn svg{width:20px; height:20px;}
+
+  .screens{
+    grid-area:screens; padding:32px 40px calc(40px + env(safe-area-inset-bottom));
+  }
+  .screens > .screen.active{max-width:1100px; margin:0 auto;}
+
+  .fab{right:40px; bottom:40px;}
+
+  .stats-grid{grid-template-columns:repeat(4,1fr);}
+  .section-header h2{font-size:26px;}
+  .card-header h3{font-size:16px;}
+  .month-header h2{font-size:22px;}
+  .chart-wrap{height:280px;}
+
+  #budgetList, #goalsList{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:14px; align-content:start;}
+  #budgetList .budget-item, #goalsList .goal-card{margin-bottom:0;}
+  .tx-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(340px,1fr)); gap:10px;}
+  .tx-list .tx-item{margin-bottom:0;}
+}
 </style>
 </head>
 <body>
@@ -386,6 +437,18 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
       <div class="onboarding-emoji">📊</div>
       <h2>Set your monthly budgets</h2>
       <p class="onboarding-sub">Adjust the default limits for each category.</p>
+      <div class="onb-income-summary">
+        <div class="onb-income-row">
+          <span>Monthly income</span>
+          <span id="onbIncomeDisplay">$0.00</span>
+        </div>
+        <div class="onb-income-row">
+          <span>Unallocated</span>
+          <span id="onbUnallocated">$0.00</span>
+        </div>
+        <button type="button" id="onbAutoDistribute" class="btn-small" style="width:100%; margin-top:10px;">Auto-distribute</button>
+        <p id="onbBudgetWarning" class="onb-budget-warning hidden">Total budgets exceed your income</p>
+      </div>
       <div id="onbBudgetList" class="onboarding-budget-list"></div>
       <button type="button" id="onbNext2" class="btn-primary" style="width:100%; margin-top:18px;">Next</button>
     </div>
@@ -1344,6 +1407,34 @@ function getOnboardingBudgetValues(){
   });
   return result;
 }
+function getOnboardingIncome(){
+  return round2(Math.max(0, parseFloat(document.getElementById('onbIncome').value) || 0));
+}
+function updateOnboardingUnallocated(){
+  var income = getOnboardingIncome();
+  var total = getOnboardingBudgetValues().reduce(function(s,b){ return s + b.limit; }, 0);
+  total = round2(total);
+  var unallocated = round2(income - total);
+  var unallocatedEl = document.getElementById('onbUnallocated');
+  unallocatedEl.textContent = fmtMoney(unallocated);
+  unallocatedEl.classList.toggle('neg', unallocated < 0);
+  document.getElementById('onbBudgetWarning').classList.toggle('hidden', total <= income);
+}
+function autoDistributeIncome(){
+  var income = getOnboardingIncome();
+  var totalWeight = DEFAULT_CATEGORIES.reduce(function(s,c){ return s + c.limit; }, 0);
+  var inputs = document.querySelectorAll('.onb-budget-input');
+  inputs.forEach(function(inp, i){
+    var c = DEFAULT_CATEGORIES[i];
+    var share = totalWeight > 0 ? (c.limit / totalWeight) * income : 0;
+    inp.value = Math.round(share);
+  });
+  updateOnboardingUnallocated();
+}
+function enterOnboardingStep2(){
+  document.getElementById('onbIncomeDisplay').textContent = fmtMoney(getOnboardingIncome());
+  updateOnboardingUnallocated();
+}
 function showOnboardingStep(n){
   document.querySelectorAll('.onboarding-step').forEach(function(s){
     s.classList.toggle('active', Number(s.dataset.step) === n);
@@ -1727,7 +1818,14 @@ function initEventListeners(){
       toast('Enter your monthly income');
       return;
     }
+    enterOnboardingStep2();
     showOnboardingStep(2);
+  });
+  document.getElementById('onbAutoDistribute').addEventListener('click', function(){
+    autoDistributeIncome();
+  });
+  document.getElementById('onbBudgetList').addEventListener('input', function(e){
+    if (e.target.classList.contains('onb-budget-input')) updateOnboardingUnallocated();
   });
   document.getElementById('onbNext2').addEventListener('click', function(){
     var income = round2(Math.max(0, parseFloat(document.getElementById('onbIncome').value) || 0));
