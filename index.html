@@ -19,7 +19,7 @@
 <style>
 :root{
   --bg:#0d1117; --surface:#161b22; --card:#21262d;
-  --blue:#58a6ff; --green:#3fb950; --red:#e05252;
+  --blue:#58a6ff; --green:#3fb950; --red:#e05252; --yellow:#f0a500;
   --border:#30363d; --text:#e6edf3; --text-dim:#8b949e;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -63,6 +63,31 @@ a{color:inherit;}
 .lock-buy-link:hover{color:var(--blue);}
 .demo-section{width:100%; max-width:320px; margin-top:14px;}
 .demo-hint{color:var(--text-dim); font-size:11.5px; margin-top:8px; text-align:center;}
+
+/* ---------- Onboarding ---------- */
+.onboarding-screen{
+  display:flex; flex-direction:column; align-items:center; height:100vh; height:100dvh; width:100%;
+  padding:32px 24px; text-align:center; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:radial-gradient(circle at 50% 0%, rgba(88,166,255,.10), transparent 60%), var(--bg);
+}
+.onboarding-inner{width:100%; max-width:360px; margin:auto;}
+.onboarding-progress{display:flex; justify-content:center; gap:8px; margin-bottom:26px;}
+.onboarding-dot{width:8px; height:8px; border-radius:50%; background:var(--border); transition:.2s;}
+.onboarding-dot.active{background:var(--blue); width:22px; border-radius:99px;}
+.onboarding-step{display:none;}
+.onboarding-step.active{display:block; animation:fadeSlideIn .3s ease;}
+.onboarding-emoji{font-size:42px; margin-bottom:14px;}
+.onboarding-step h2{font-size:21px; font-weight:800; margin-bottom:8px; letter-spacing:-.01em;}
+.onboarding-sub{color:var(--text-dim); font-size:13.5px; margin-bottom:22px; line-height:1.5;}
+.onboarding-budget-list{text-align:left;}
+.onboarding-budget-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.onboarding-budget-row span{flex:1; font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.onboarding-budget-row input{width:110px; flex-shrink:0; text-align:right; padding:9px 10px; font-size:13px;}
+.onboarding-summary{text-align:left; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:6px 16px; margin-bottom:6px;}
+.onboarding-summary-row{display:flex; justify-content:space-between; gap:10px; padding:9px 0; font-size:13.5px; border-bottom:1px solid var(--border);}
+.onboarding-summary-row:last-child{border-bottom:none;}
+.onboarding-summary-row span:first-child{color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.onboarding-summary-row span:last-child{font-weight:700; flex-shrink:0;}
 
 /* ---------- Buttons ---------- */
 .btn-primary{
@@ -169,7 +194,30 @@ a{color:inherit;}
 .progress-track{height:8px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden;}
 .progress-fill{height:100%; border-radius:99px; background:var(--blue); transition:width .5s cubic-bezier(.16,1,.3,1); width:0%;}
 .progress-fill.over{background:var(--red);}
+.progress-fill.warn{background:var(--yellow);}
 .progress-fill.goal-fill{background:var(--green);}
+
+/* ---------- Dashboard Summary ---------- */
+.summary-card{padding:18px 16px;}
+.progress-track.big{height:14px;}
+.summary-remaining{display:block; text-align:center; font-size:clamp(1.05rem,5vw,1.5rem); font-weight:800; margin:14px 0 4px; overflow-wrap:break-word;}
+.summary-remaining.pos{color:var(--green);}
+.summary-remaining.neg{color:var(--red);}
+.summary-mini-stats{display:flex; gap:10px; margin-top:14px;}
+.summary-mini{flex:1; min-width:0; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:12px; padding:10px 10px; text-align:center;}
+.summary-mini-label{display:block; font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.03em; font-weight:700; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.summary-mini-value{display:block; font-size:14px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.run-out-alert{margin-top:14px; background:rgba(224,82,82,.12); border:1px solid rgba(224,82,82,.3); color:var(--red); padding:10px 12px; border-radius:12px; font-size:13px; font-weight:700; text-align:center; line-height:1.4;}
+
+/* ---------- Alerts ---------- */
+.alert-row{display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; line-height:1.4;}
+.alert-row:last-child{border-bottom:none;}
+.alert-icon{font-size:16px; flex-shrink:0;}
+.alert-text{flex:1; min-width:0;}
+.alert-warn .alert-text{color:var(--yellow);}
+.alert-over .alert-text{color:var(--red); font-weight:600;}
+.budget-cat-warn{color:var(--yellow);}
+.budget-cat-over{color:var(--red);}
 
 .mini-goal{margin-bottom:14px;}
 .mini-goal:last-child{margin-bottom:0;}
@@ -303,6 +351,40 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
   </div>
 </div>
 
+<div id="onboarding" class="onboarding-screen hidden">
+  <div class="onboarding-inner">
+    <div class="onboarding-progress">
+      <span class="onboarding-dot active" data-step="1"></span>
+      <span class="onboarding-dot" data-step="2"></span>
+      <span class="onboarding-dot" data-step="3"></span>
+    </div>
+
+    <div class="onboarding-step active" data-step="1">
+      <div class="onboarding-emoji">💰</div>
+      <h2>What's your monthly income?</h2>
+      <p class="onboarding-sub">We'll use this to track your budget automatically.</p>
+      <input type="number" id="onbIncome" class="lock-input" placeholder="0.00" min="0" step="0.01">
+      <button type="button" id="onbNext1" class="btn-primary" style="width:100%; margin-top:18px;">Next</button>
+    </div>
+
+    <div class="onboarding-step" data-step="2">
+      <div class="onboarding-emoji">📊</div>
+      <h2>Set your monthly budgets</h2>
+      <p class="onboarding-sub">Adjust the default limits for each category.</p>
+      <div id="onbBudgetList" class="onboarding-budget-list"></div>
+      <button type="button" id="onbNext2" class="btn-primary" style="width:100%; margin-top:18px;">Next</button>
+    </div>
+
+    <div class="onboarding-step" data-step="3">
+      <div class="onboarding-emoji">🎉</div>
+      <h2>You're all set!</h2>
+      <p class="onboarding-sub">Here's a quick summary of your setup.</p>
+      <div id="onbSummary" class="onboarding-summary"></div>
+      <button type="button" id="onbFinish" class="btn-primary" style="width:100%; margin-top:18px;">Go to Dashboard</button>
+    </div>
+  </div>
+</div>
+
 <div id="app" class="app-shell hidden">
   <header class="topbar">
     <div class="topbar-left">
@@ -342,6 +424,27 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
           <span class="stat-label">Saved</span>
           <span class="stat-value saved" id="statSaved">$0.00</span>
         </div>
+      </div>
+
+      <div class="card summary-card">
+        <div class="progress-track big"><div class="progress-fill" id="incomeSpentFill" style="width:0%"></div></div>
+        <span id="summaryRemainingText" class="summary-remaining">You have $0.00 left this month</span>
+        <div class="summary-mini-stats">
+          <div class="summary-mini">
+            <span class="summary-mini-label">Daily average</span>
+            <span class="summary-mini-value" id="dailyAverageText">$0.00</span>
+          </div>
+          <div class="summary-mini">
+            <span class="summary-mini-label">Days left in month</span>
+            <span class="summary-mini-value" id="daysLeftText">0</span>
+          </div>
+        </div>
+        <div id="runOutAlert" class="run-out-alert hidden"></div>
+      </div>
+
+      <div id="alertsCard" class="card hidden">
+        <div class="card-header"><h3>Alerts</h3></div>
+        <div id="alertsList"></div>
       </div>
 
       <div class="card">
@@ -848,8 +951,84 @@ function renderDashboard(){
   badge.textContent = overBudget ? 'Over budget!' : 'On track!';
   badge.className = 'badge ' + (overBudget ? 'badge-red' : 'badge-green');
 
+  renderDashboardSummary(monthKey, stats);
+  renderDashboardAlerts(monthKey);
   renderCategoryChart(monthKey);
   renderDashboardGoals();
+}
+
+function renderDashboardSummary(monthKey, stats){
+  var now = new Date();
+  var isCurrentRealMonth = monthKey === monthKeyOf(now);
+  var daysInThisMonth = new Date(state.currentMonth.getFullYear(), state.currentMonth.getMonth()+1, 0).getDate();
+  var daysElapsed, daysLeft;
+  if (isCurrentRealMonth){
+    daysElapsed = now.getDate();
+    daysLeft = daysInThisMonth - daysElapsed;
+  } else if (firstOfMonth(state.currentMonth).getTime() < firstOfMonth(now).getTime()){
+    daysElapsed = daysInThisMonth;
+    daysLeft = 0;
+  } else {
+    daysElapsed = 0;
+    daysLeft = daysInThisMonth;
+  }
+  var dailyAverage = daysElapsed > 0 ? round2(stats.spent / daysElapsed) : 0;
+
+  var ratio = stats.income > 0 ? (stats.spent / stats.income) : (stats.spent > 0 ? 2 : 0);
+  var pct = Math.min(ratio * 100, 100);
+  var fill = document.getElementById('incomeSpentFill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill' + (ratio >= 1 ? ' over' : (ratio >= 0.8 ? ' warn' : ''));
+
+  var remText = document.getElementById('summaryRemainingText');
+  remText.textContent = 'You have ' + fmtMoney(stats.remaining) + ' left this month';
+  remText.classList.toggle('pos', stats.remaining >= 0);
+  remText.classList.toggle('neg', stats.remaining < 0);
+
+  document.getElementById('dailyAverageText').textContent = fmtMoney(dailyAverage);
+  document.getElementById('daysLeftText').textContent = String(Math.max(daysLeft, 0));
+
+  var alertEl = document.getElementById('runOutAlert');
+  var showRunOut = false;
+  if (isCurrentRealMonth && dailyAverage > 0 && stats.remaining > 0 && daysLeft > 0){
+    var projectedDays = stats.remaining / dailyAverage;
+    if (projectedDays < daysLeft){
+      var daysUntilBroke = Math.max(1, Math.round(projectedDays));
+      alertEl.textContent = "⚠️ At this rate you'll run out in " + daysUntilBroke + ' day' + (daysUntilBroke === 1 ? '' : 's');
+      showRunOut = true;
+    }
+  }
+  alertEl.classList.toggle('hidden', !showRunOut);
+}
+
+function renderDashboardAlerts(monthKey){
+  var txs = txForMonth(monthKey).filter(function(t){ return t.type === 'expense'; });
+  var items = [];
+  state.budgets.forEach(function(b){
+    if (!(b.limit > 0)) return;
+    var used = round2(txs.filter(function(t){ return t.category === b.category; }).reduce(function(s,t){ return s + t.amount; }, 0));
+    var ratio = used / b.limit;
+    if (ratio >= 0.8){
+      items.push({ category: b.category, emoji: b.emoji || '📁', used: used, limit: b.limit, ratio: ratio, over: ratio >= 1 });
+    }
+  });
+  var card = document.getElementById('alertsCard');
+  var list = document.getElementById('alertsList');
+  if (items.length === 0){
+    card.classList.add('hidden');
+    list.innerHTML = '';
+    return;
+  }
+  items.sort(function(a,b){ return b.ratio - a.ratio; });
+  card.classList.remove('hidden');
+  list.innerHTML = items.map(function(it){
+    var icon = it.over ? '🚨' : '⚠️';
+    var cls = it.over ? 'alert-over' : 'alert-warn';
+    var msg = it.over
+      ? (it.emoji + ' ' + escapeHtml(it.category) + ' is over budget: ' + fmtMoney(it.used) + ' of ' + fmtMoney(it.limit))
+      : (it.emoji + ' ' + escapeHtml(it.category) + ' is at ' + Math.round(it.ratio * 100) + '% of budget (' + fmtMoney(it.used) + ' of ' + fmtMoney(it.limit) + ')');
+    return '<div class="alert-row ' + cls + '"><span class="alert-icon">' + icon + '</span><span class="alert-text">' + msg + '</span></div>';
+  }).join('');
 }
 
 function renderCategoryChart(monthKey){
@@ -945,11 +1124,16 @@ function renderBudget(){
   emptyEl.classList.add('hidden');
   container.innerHTML = state.budgets.map(function(b){
     var used = round2(txs.filter(function(t){ return t.category === b.category; }).reduce(function(s,t){ return s + t.amount; }, 0));
-    var pct = b.limit > 0 ? Math.min((used / b.limit) * 100, 100) : 0;
-    var over = b.limit > 0 && used > b.limit;
+    var ratio = b.limit > 0 ? (used / b.limit) : 0;
+    var pct = Math.min(ratio * 100, 100);
+    var over = ratio >= 1;
+    var warn = !over && ratio >= 0.8;
+    var icon = over ? '🚨 ' : (warn ? '⚠️ ' : '');
+    var catClass = over ? 'budget-cat-over' : (warn ? 'budget-cat-warn' : '');
+    var fillClass = over ? 'over' : (warn ? 'warn' : '');
     return '<div class="budget-item">' +
       '<div class="budget-row-top">' +
-        '<span class="budget-cat">' + (b.emoji || '📁') + ' ' + escapeHtml(b.category) + '</span>' +
+        '<span class="budget-cat ' + catClass + '">' + icon + (b.emoji || '📁') + ' ' + escapeHtml(b.category) + '</span>' +
         '<button class="icon-btn-sm budget-delete" data-id="' + b.id + '" aria-label="Delete category">' + TRASH_SVG + '</button>' +
       '</div>' +
       '<div class="budget-row-mid">' +
@@ -957,7 +1141,7 @@ function renderBudget(){
         '<span>/</span>' +
         '<input type="number" class="budget-limit-input" data-id="' + b.id + '" value="' + b.limit + '" min="0" step="1">' +
       '</div>' +
-      '<div class="progress-track"><div class="progress-fill ' + (over ? 'over' : '') + '" style="width:' + pct + '%"></div></div>' +
+      '<div class="progress-track"><div class="progress-fill ' + fillClass + '" style="width:' + pct + '%"></div></div>' +
     '</div>';
   }).join('');
 }
@@ -1080,6 +1264,66 @@ function resetGoalForm(){
   document.querySelectorAll('#goalEmojiPicker .emoji-btn').forEach(function(b){
     b.classList.toggle('active', b.dataset.emoji === selectedGoalEmoji);
   });
+}
+
+/* ---------------- Onboarding ---------------- */
+function populateOnboardingBudgets(){
+  var container = document.getElementById('onbBudgetList');
+  container.innerHTML = DEFAULT_CATEGORIES.map(function(c){
+    return '<div class="onboarding-budget-row">' +
+      '<span>' + c.emoji + ' ' + escapeHtml(c.category) + '</span>' +
+      '<input type="number" class="onb-budget-input" value="' + c.limit + '" min="0" step="1">' +
+    '</div>';
+  }).join('');
+}
+function getOnboardingBudgetValues(){
+  var inputs = document.querySelectorAll('.onb-budget-input');
+  var result = [];
+  inputs.forEach(function(inp, i){
+    var c = DEFAULT_CATEGORIES[i];
+    result.push({ category: c.category, emoji: c.emoji, limit: round2(Math.max(0, parseFloat(inp.value) || 0)) });
+  });
+  return result;
+}
+function showOnboardingStep(n){
+  document.querySelectorAll('.onboarding-step').forEach(function(s){
+    s.classList.toggle('active', Number(s.dataset.step) === n);
+  });
+  document.querySelectorAll('.onboarding-dot').forEach(function(d){
+    d.classList.toggle('active', Number(d.dataset.step) === n);
+  });
+  document.querySelector('.onboarding-screen').scrollTop = 0;
+}
+function showOnboarding(){
+  populateOnboardingBudgets();
+  document.getElementById('onbIncome').value = '';
+  showOnboardingStep(1);
+  document.getElementById('onboarding').classList.remove('hidden');
+}
+function renderOnboardingSummary(income){
+  var rows = getOnboardingBudgetValues().map(function(b){
+    return '<div class="onboarding-summary-row"><span>' + b.emoji + ' ' + escapeHtml(b.category) + '</span><span>' + fmtMoney(b.limit) + '</span></div>';
+  }).join('');
+  document.getElementById('onbSummary').innerHTML =
+    '<div class="onboarding-summary-row"><span>Monthly income</span><span>' + fmtMoney(income) + '</span></div>' + rows;
+}
+async function finishOnboarding(){
+  var income = round2(Math.max(0, parseFloat(document.getElementById('onbIncome').value) || 0));
+  var budgetValues = getOnboardingBudgetValues();
+  var today = todayStr();
+  if (income > 0){
+    await idbPut('transactions', { date: today, type: 'income', category: 'Salary', description: 'Monthly income', amount: income, monthKey: today.slice(0,7), createdAt: Date.now() });
+  }
+  for (var i=0; i<budgetValues.length; i++){
+    var b = budgetValues[i];
+    await idbPut('budgets', { category: b.category, emoji: b.emoji, limit: b.limit, isCustom: false });
+  }
+  await loadAllData();
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  switchScreen('dashboard');
+  renderAll();
+  toast('Welcome to Budget Pro!');
 }
 
 /* ---------------- Category dropdown ---------------- */
@@ -1397,6 +1641,29 @@ function initEventListeners(){
     await enterApp();
   });
 
+  document.getElementById('onbNext1').addEventListener('click', function(){
+    var val = parseFloat(document.getElementById('onbIncome').value);
+    if (document.getElementById('onbIncome').value === '' || isNaN(val) || val < 0){
+      toast('Enter your monthly income');
+      return;
+    }
+    showOnboardingStep(2);
+  });
+  document.getElementById('onbNext2').addEventListener('click', function(){
+    var income = round2(Math.max(0, parseFloat(document.getElementById('onbIncome').value) || 0));
+    renderOnboardingSummary(income);
+    showOnboardingStep(3);
+  });
+  document.getElementById('onbFinish').addEventListener('click', async function(){
+    var btn = document.getElementById('onbFinish');
+    btn.disabled = true;
+    try {
+      await finishOnboarding();
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   document.getElementById('lockForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var input = document.getElementById('licenseKeyInput');
@@ -1443,10 +1710,16 @@ function registerSW(){
 }
 
 async function enterApp(){
-  await seedDefaultsIfNeeded();
-  await loadAllData();
+  var rawTx = await idbGetAll('transactions');
+  var rawBudgets = await idbGetAll('budgets');
   document.getElementById('bootLoader').classList.add('hidden');
   document.getElementById('lockScreen').classList.add('hidden');
+  if (rawTx.length === 0 && rawBudgets.length === 0){
+    showOnboarding();
+    return;
+  }
+  await seedDefaultsIfNeeded();
+  await loadAllData();
   document.getElementById('app').classList.remove('hidden');
   switchScreen('dashboard');
   renderAll();
