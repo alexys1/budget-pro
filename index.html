@@ -693,6 +693,14 @@ input:focus, select:focus{outline:none; border-color:var(--blue);}
       <button id="lockDeviceBtn" class="btn-small" style="background:rgba(224,82,82,.12); color:var(--red); border-color:rgba(224,82,82,.3);">Lock</button>
     </div>
 
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-label" style="color:var(--red);">Reset All Data</div>
+        <div class="settings-row-sub">Permanently deletes everything</div>
+      </div>
+      <button id="resetAllDataBtn" class="btn-small" style="background:rgba(224,82,82,.12); color:var(--red); border-color:rgba(224,82,82,.3);">Reset</button>
+    </div>
+
     <div class="app-version">Budget Pro v1.0</div>
     <div class="modal-actions" style="margin-top:16px;">
       <button type="button" class="btn-secondary" data-close-modal style="flex:1;">Close</button>
@@ -1457,6 +1465,20 @@ async function lockDevice(){
   }
   location.reload();
 }
+async function resetAllData(){
+  if (!confirm('This will delete ALL your data permanently. Are you sure?')) return;
+  await idbClear('transactions');
+  await idbClear('budgets');
+  await idbClear('goals');
+  await setMeta('unlocked', false);
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+  location.reload();
+}
 function maskKey(k){
   if (!k || k.length < 8) return '••••••••';
   return k.slice(0,4) + '••••' + k.slice(-4);
@@ -1648,6 +1670,7 @@ function initEventListeners(){
   });
   document.getElementById('importFile').addEventListener('change', handleImportFile);
   document.getElementById('lockDeviceBtn').addEventListener('click', lockDevice);
+  document.getElementById('resetAllDataBtn').addEventListener('click', resetAllData);
 
   document.getElementById('demoBtn').addEventListener('click', async function(){
     await enterApp();
