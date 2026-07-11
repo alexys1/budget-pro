@@ -1714,6 +1714,13 @@ function registerSW(){
     });
   }
 }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(reg) {
+      reg.update();
+    });
+  });
+}
 
 async function enterApp(){
   var rawTx = await idbGetAll('transactions');
