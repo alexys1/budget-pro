@@ -10,6 +10,8 @@ self.addEventListener('activate', function(e){
 const RUNTIME_CACHE = 'budget-pro-runtime';
 
 self.addEventListener('fetch', function(event){
+  if (!event.request.url.startsWith('http')) return;
+
   var req = event.request;
   if (req.method !== 'GET') return;
 
